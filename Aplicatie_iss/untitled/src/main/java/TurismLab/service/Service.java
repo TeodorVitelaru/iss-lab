@@ -3,27 +3,26 @@ package TurismLab.service;
 import TurismLab.domain.Book;
 import TurismLab.domain.Borrow;
 import TurismLab.domain.User;
-import TurismLab.repo.RepoDBBook;
-import TurismLab.repo.RepoDBBorrow;
-import TurismLab.repo.RepoDBUser;
+import TurismLab.repo.hibernate.RepoHibernateBook;
+import TurismLab.repo.hibernate.RepoHibernateBorrow;
+import TurismLab.repo.hibernate.RepoHibernateUser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Service {
-    private RepoDBBook repoDBBook;
-    private RepoDBBorrow repoDBBorrow;
-    private RepoDBUser repoDBUser;
+    private RepoHibernateBook repoBook;
+    private RepoHibernateBorrow repoBorrow;
+    private RepoHibernateUser repoUser;
 
-    public Service(RepoDBBook repoDBBook, RepoDBBorrow repoDBBorrow, RepoDBUser repoDBUser) {
-        this.repoDBBook = repoDBBook;
-        this.repoDBBorrow = repoDBBorrow;
-        this.repoDBUser = repoDBUser;
+    public Service(RepoHibernateBook repoBook, RepoHibernateBorrow repoBorrow, RepoHibernateUser repoUser) {
+        this.repoBook = repoBook;
+        this.repoBorrow = repoBorrow;
+        this.repoUser = repoUser;
     }
 
     public Book addBook(String nume, String autor, String gen, int cantitate) throws Exception {
         Book book = new Book(nume, autor, gen, cantitate);
-        Book savedBook = repoDBBook.save(book);
+        Book savedBook = repoBook.save(book);
         if (savedBook != null) {
             return savedBook;
         } else {
@@ -39,17 +38,17 @@ public class Service {
             throw new Exception("No copies available");
         }
         book.setCantitate(book.getCantitate() - 1);
-        repoDBBook.update(book);
+        repoBook.update(book);
         var borrow = new Borrow(user, book);
-        return repoDBBorrow.save(borrow);
+        return repoBorrow.save(borrow);
     }
 
     public User findUserById(Long id) {
-        return repoDBUser.findById(id);
+        return repoUser.findById(id);
     }
 
     public User findUserByUsernameAndId(String nume, Long id) {
-        return repoDBUser.findByUsernameAndId(nume, id);
+        return repoUser.findByUsernameAndId(nume, id);
     }
 
     public void returnBook(Borrow borrow) throws Exception {
@@ -58,31 +57,19 @@ public class Service {
         }
         Book book = borrow.getBook();
         book.setCantitate(book.getCantitate() + 1);
-        repoDBBook.update(book);
-        repoDBBorrow.delete(borrow.getId());
+        repoBook.update(book);
+        repoBorrow.delete(borrow.getId());
     }
 
     public List<Borrow> getAllBorrowsForUser(Long userId) {
-        return repoDBBorrow.findAllForUser(userId);
+        return repoBorrow.findAllForUser(userId);
     }
 
     public List<Book> getAllBooks() {
-        return repoDBBook.findAll();
+        return repoBook.findAll();
     }
 
     public List<Book> searchByFilter(String titlu, String autor, String gen) {
-        //TODO!
-        List<Book> searchResults = new ArrayList<>();
-        for (Book book : repoDBBook.findAll()) {
-            if((titlu != null && book.getNume() == titlu) &&
-                    (autor != null && book.getAutor() == autor) &&
-                    (gen != null && book.getGen() == gen)) {
-                searchResults.add(book);
-
-            }
-        }
-        return null;
+        return repoBook.searchByFilter(titlu, autor, gen);
     }
-
-
 }

@@ -1,27 +1,42 @@
 package TurismLab.domain;
 
-import java.time.LocalDateTime;
 
-public class Borrow extends Entity<Long>{
-    private Long id;
+import TurismLab.domain.BaseEntity;
+
+import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.time.LocalDateTime;
+import javax.persistence.Entity;
+
+@Entity
+@Table(name = "borrows")
+public class Borrow extends BaseEntity<Long> {
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "book_id")
     private Book book;
+
+    @Column(name = "data_imprumut")
     private LocalDateTime dataImprumut;
+
+    @Column(name = "data_restituire")
     private LocalDateTime dataRestituire;
+
+    public Borrow() {
+        // Required by Hibernate
+    }
 
     public Borrow(User user, Book book) {
         this.user = user;
         this.book = book;
         this.dataImprumut = LocalDateTime.now();
         this.dataRestituire = dataImprumut.plusDays(30);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public User getUser() {

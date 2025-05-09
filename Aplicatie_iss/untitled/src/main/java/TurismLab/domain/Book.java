@@ -1,25 +1,34 @@
 package TurismLab.domain;
 
-public class Book extends Entity<Long>{
-    private Long id;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "books")
+public class Book extends TurismLab.domain.BaseEntity<Long> {
+
+    @Column(name = "nume")
     private String nume;
+
+    @Column(name = "autor")
     private String autor;
+
+    @Column(name = "gen")
     private String gen;
+
+    @Column(name = "cantitate")
     private int cantitate;
+
+    public Book() {
+        // Required by Hibernate
+    }
 
     public Book(String nume, String autor, String gen, int cantitate) {
         this.nume = nume;
         this.autor = autor;
         this.gen = gen;
         this.cantitate = cantitate;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getNume() {
@@ -53,7 +62,4 @@ public class Book extends Entity<Long>{
     public void setGen(String gen) {
         this.gen = gen;
     }
-
-
-
 }
