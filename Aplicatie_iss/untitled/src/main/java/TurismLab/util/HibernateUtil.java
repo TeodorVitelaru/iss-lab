@@ -21,6 +21,9 @@ public class HibernateUtil {
 
     public HibernateUtil(Properties props) {
         this.jdbcProps = props;
+        System.out.println(jdbcProps.getProperty("turism.jdbc.url"));
+        System.out.println(jdbcProps.getProperty("jdbc.user"));
+        System.out.println(jdbcProps.getProperty("jdbc.pass"));
     }
 
     public SessionFactory getSessionFactory() {

@@ -37,6 +37,9 @@ public class Service {
         if(book.getCantitate() <= 0) {
             throw new Exception("No copies available");
         }
+        if(repoBorrow.findByBook(book.getId()) != null) {
+            throw new Exception("Book already borrowed");
+        }
         book.setCantitate(book.getCantitate() - 1);
         repoBook.update(book);
         var borrow = new Borrow(user, book);
@@ -71,5 +74,16 @@ public class Service {
 
     public List<Book> searchByFilter(String titlu, String autor, String gen) {
         return repoBook.searchByFilter(titlu, autor, gen);
+    }
+
+    public Borrow findBorrowById(Long id) {
+        return repoBorrow.findById(id);
+    }
+
+    public void addUser(User user) throws Exception {
+        if (user == null) {
+            throw new Exception("User cannot be null");
+        }
+        repoUser.save(user);
     }
 }

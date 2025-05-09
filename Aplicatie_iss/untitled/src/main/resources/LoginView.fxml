@@ -6,7 +6,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane prefHeight="400.0" prefWidth="467.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TurismLab.controller.LoginController">
    <children>
       <Label alignment="CENTER" layoutX="163.0" layoutY="76.0" prefHeight="90.0" prefWidth="141.0" text="LOGIN" textAlignment="CENTER">

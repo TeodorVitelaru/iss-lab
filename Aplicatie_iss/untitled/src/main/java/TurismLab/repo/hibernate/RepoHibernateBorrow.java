@@ -70,4 +70,15 @@ public class RepoHibernateBorrow {
             return null;
         }
     }
+
+    public Borrow findByBook(Long bookId) {
+        try (Session session = hibernateUtil.getSessionFactory().openSession()) {
+            Query<Borrow> query = session.createQuery("FROM Borrow WHERE book.id = :bookId", Borrow.class);
+            query.setParameter("bookId", bookId);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

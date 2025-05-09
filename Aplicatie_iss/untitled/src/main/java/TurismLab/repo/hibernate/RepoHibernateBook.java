@@ -70,6 +70,7 @@ public class RepoHibernateBook {
         try (Session session = hibernateUtil.getSessionFactory().openSession()) {
             StringBuilder queryString = new StringBuilder("FROM Book WHERE 1=1");
 
+            // Verificăm doar acele câmpuri care nu sunt null sau goale
             if (titlu != null && !titlu.isEmpty()) {
                 queryString.append(" AND nume = :titlu");
             }
@@ -82,6 +83,7 @@ public class RepoHibernateBook {
 
             Query<Book> query = session.createQuery(queryString.toString(), Book.class);
 
+            // Setăm doar parametrii care sunt valabili
             if (titlu != null && !titlu.isEmpty()) {
                 query.setParameter("titlu", titlu);
             }
