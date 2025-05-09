@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane prefHeight="544.0" prefWidth="947.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TurismLab.controller.UserController">
+   <children>
+      <TableView layoutX="4.0" layoutY="56.0" prefHeight="200.0" prefWidth="335.0">
+        <columns>
+          <TableColumn prefWidth="88.79995441436768" text="Titlu" />
+          <TableColumn prefWidth="83.20001220703125" text="Autor" />
+            <TableColumn prefWidth="71.99996948242188" text="Gen" />
+            <TableColumn prefWidth="89.5999786376953" text="Cantitate" />
+        </columns>
+      </TableView>
+      <Label layoutX="369.0" layoutY="81.0" text="Titlu:" />
+      <Label layoutX="369.0" layoutY="120.0" text="Autor:" />
+      <Label layoutX="369.0" layoutY="160.0" text="Gen:" />
+      <Button fx:id="cautaButton" layoutX="400.0" layoutY="209.0" mnemonicParsing="false" onAction="#handleCautaBook" prefHeight="26.0" prefWidth="127.0" text="Cauta" />
+      <TableView layoutX="566.0" layoutY="56.0" prefHeight="200.0" prefWidth="360.0">
+         <columns>
+            <TableColumn prefWidth="110.4000244140625" text="Titlu" />
+            <TableColumn prefWidth="84.800048828125" text="Autor" />
+            <TableColumn prefWidth="84.800048828125" text="Gen" />
+            <TableColumn prefWidth="77.60009765625" text="Cantitate" />
+         </columns>
+      </TableView>
+      <TextField fx:id="titluTextField" layoutX="413.0" layoutY="77.0" prefHeight="26.0" prefWidth="133.0">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="autorTextField" layoutX="413.0" layoutY="115.0" prefHeight="26.0" prefWidth="133.0" />
+      <ComboBox fx:id="genComboBox" accessibleRole="CHECK_MENU_ITEM" layoutX="413.0" layoutY="156.0" prefHeight="26.0" prefWidth="134.0" promptText="Alege un gen" />
+      <Label layoutX="57.0" layoutY="331.0" text="Titlu:" />
+      <Label layoutX="57.0" layoutY="370.0" text="Autor:" />
+      <Label layoutX="57.0" layoutY="410.0" text="Gen:" />
+      <TextField fx:id="titluTextField1" layoutX="101.0" layoutY="327.0" prefHeight="26.0" prefWidth="133.0">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="autorTextField1" layoutX="101.0" layoutY="365.0" prefHeight="26.0" prefWidth="133.0" />
+      <TextField fx:id="genTextField1" layoutX="101.0" layoutY="405.0" prefHeight="26.0" prefWidth="133.0">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </TextField>
+      <Button fx:id="borrowButton" layoutX="56.0" layoutY="455.0" mnemonicParsing="false" onAction="#handleBorrow" prefHeight="42.0" prefWidth="180.0" text="Button" />
+      <TableView layoutX="347.0" layoutY="310.0" prefHeight="200.0" prefWidth="578.0">
+         <columns>
+            <TableColumn prefWidth="116.79998779296875" text="Titlu" />
+            <TableColumn prefWidth="129.5999755859375" text="Autor" />
+            <TableColumn prefWidth="68.79998779296875" text="Gen" />
+            <TableColumn prefWidth="137.60003662109375" text="Data imprumutului" />
+            <TableColumn prefWidth="125.599853515625" text="Data restituire" />
+         </columns>
+      </TableView>
+      <Label layoutX="351.0" layoutY="291.0" prefHeight="18.0" prefWidth="309.0" text="Carti imprumutate:" />
+      <Label fx:id="searchLabel" layoutX="572.0" layoutY="40.0" prefHeight="18.0" prefWidth="146.0" text="Nicio carte cautata..." />
+      <Label layoutX="14.0" layoutY="40.0" prefHeight="18.0" prefWidth="102.0" text="Carti disponibile:" />
+   </children>
+</AnchorPane>
