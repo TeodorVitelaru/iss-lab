@@ -41,7 +41,7 @@ public class Service {
             throw new Exception("Book already borrowed");
         }
         book.setCantitate(book.getCantitate() - 1);
-        repoBook.update(book);
+        //repoBook.update(book);
         var borrow = new Borrow(user, book);
         return repoBorrow.save(borrow);
     }
@@ -60,7 +60,7 @@ public class Service {
         }
         Book book = borrow.getBook();
         book.setCantitate(book.getCantitate() + 1);
-        repoBook.update(book);
+        //repoBook.update(book);
         repoBorrow.delete(borrow.getId());
     }
 
@@ -85,5 +85,26 @@ public class Service {
             throw new Exception("User cannot be null");
         }
         repoUser.save(user);
+    }
+
+    public void deleteBook(Long id) throws Exception {
+        Book book = repoBook.findById(id);
+        if (book == null) {
+            throw new Exception("Book not found");
+        }
+        repoBook.delete(id);
+    }
+
+    public void updateBook(Book book) throws Exception {
+        if (book == null) {
+            throw new Exception("Book cannot be null");
+        }
+        repoBook.update(book);
+    }
+
+    public int getAvailableQuantity(Book book) {
+        int total = book.getCantitate();
+        int imprumutate = repoBorrow.findActiveBorrowsForBook(book.getId()).size(); // sau orice metodă ai tu
+        return total - imprumutate;
     }
 }

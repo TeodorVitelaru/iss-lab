@@ -24,26 +24,26 @@ public class UserController implements Initializable {
     private User currentUser;
 
     @FXML
-    private TableView<Book> availableBooksTableView;
+    private TableView<BookDTO> availableBooksTableView;
     @FXML
-    private TableColumn<Book, String> titleColumn;
+    private TableColumn<BookDTO, String> titleColumn;
     @FXML
-    private TableColumn<Book, String> authorColumn;
+    private TableColumn<BookDTO, String> authorColumn;
     @FXML
-    private TableColumn<Book, String> genreColumn;
+    private TableColumn<BookDTO, String> genreColumn;
     @FXML
-    private TableColumn<Book, Integer> quantityColumn;
+    private TableColumn<BookDTO, Integer> quantityColumn;
 
     @FXML
-    private TableView<Book> searchResultsTableView;
+    private TableView<BookDTO> searchResultsTableView;
     @FXML
-    private TableColumn<Book, String> searchTitleColumn;
+    private TableColumn<BookDTO, String> searchTitleColumn;
     @FXML
-    private TableColumn<Book, String> searchAuthorColumn;
+    private TableColumn<BookDTO, String> searchAuthorColumn;
     @FXML
-    private TableColumn<Book, String> searchGenreColumn;
+    private TableColumn<BookDTO, String> searchGenreColumn;
     @FXML
-    private TableColumn<Book, Integer> searchQuantityColumn;
+    private TableColumn<BookDTO, Integer> searchQuantityColumn;
 
     @FXML
     private TableView<BorrowDTO> borrowedBooksTableView;
@@ -76,8 +76,8 @@ public class UserController implements Initializable {
     @FXML
     private Button borrowButton;
 
-    private ObservableList<Book> availableBooksModel = FXCollections.observableArrayList();
-    private ObservableList<Book> searchResultsModel = FXCollections.observableArrayList();
+    private ObservableList<BookDTO> availableBooksModel = FXCollections.observableArrayList();
+    private ObservableList<BookDTO> searchResultsModel = FXCollections.observableArrayList();
     private ObservableList<BorrowDTO> borrowedBooksModel = FXCollections.observableArrayList();
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -96,14 +96,14 @@ public class UserController implements Initializable {
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("nume"));
         authorColumn.setCellValueFactory(new PropertyValueFactory<>("autor"));
         genreColumn.setCellValueFactory(new PropertyValueFactory<>("gen"));
-        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("cantitate"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("availableQuantity"));
         availableBooksTableView.setItems(availableBooksModel);
 
         // Initialize search results table
         searchTitleColumn.setCellValueFactory(new PropertyValueFactory<>("nume"));
         searchAuthorColumn.setCellValueFactory(new PropertyValueFactory<>("autor"));
         searchGenreColumn.setCellValueFactory(new PropertyValueFactory<>("gen"));
-        searchQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("cantitate"));
+        searchQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("availableQuantity"));
         searchResultsTableView.setItems(searchResultsModel);
 
         // Initialize borrowed books table
@@ -155,7 +155,8 @@ public class UserController implements Initializable {
         List<Book> books = service.getAllBooks();
         for (Book book : books) {
             if (book.getCantitate() > 0) {
-                availableBooksModel.add(book);
+                int available = service.getAvailableQuantity(book);
+                availableBooksModel.add(new BookDTO(book, available));
             }
         }
     }
@@ -199,7 +200,10 @@ public class UserController implements Initializable {
         if (results.isEmpty()) {
             searchLabel.setText("Nu s-au gasit carti pentru criteriile specificate");
         } else {
-            searchResultsModel.addAll(results);
+            for(Book book : results){
+                int available = service.getAvailableQuantity(book);
+                searchResultsModel.add(new BookDTO(book, available));
+            }
             searchLabel.setText("S-au gasit " + results.size() + " rezultate");
         }
     }
@@ -211,15 +215,15 @@ public class UserController implements Initializable {
             return;
         }
 
-        Book selectedBook = null;
+        BookDTO selectedBook = null;
 
         // Check if a book is selected in the available books table
-        Book availableBook = availableBooksTableView.getSelectionModel().getSelectedItem();
+        BookDTO availableBook = availableBooksTableView.getSelectionModel().getSelectedItem();
         if (availableBook != null) {
             selectedBook = availableBook;
         } else {
             // Check if a book is selected in the search results table
-            Book searchBook = searchResultsTableView.getSelectionModel().getSelectedItem();
+            BookDTO searchBook = searchResultsTableView.getSelectionModel().getSelectedItem();
             if (searchBook != null) {
                 selectedBook = searchBook;
             }
@@ -230,13 +234,13 @@ public class UserController implements Initializable {
             return;
         }
 
-        if (selectedBook.getCantitate() <= 0) {
+        if (selectedBook.getAvailableQuantity() <= 0) {
             showAlert("Error", "No copies available", Alert.AlertType.ERROR);
             return;
         }
 
         try {
-            service.borrowBook(currentUser, selectedBook);
+            service.borrowBook(currentUser, selectedBook.getBook());
             showAlert("Success", "Book borrowed successfully", Alert.AlertType.INFORMATION);
 
             // Refresh the tables
@@ -326,6 +330,36 @@ public class UserController implements Initializable {
 
         public Long getBorrowId() {
             return borrowId;
+        }
+    }
+
+    public class BookDTO {
+        private Book book;
+        private int availableQuantity;
+
+        public BookDTO(Book book, int availableQuantity) {
+            this.book = book;
+            this.availableQuantity = availableQuantity;
+        }
+
+        public String getNume() {
+            return book.getNume();
+        }
+
+        public String getAutor() {
+            return book.getAutor();
+        }
+
+        public String getGen() {
+            return book.getGen();
+        }
+
+        public int getAvailableQuantity() {
+            return availableQuantity;
+        }
+
+        public Book getBook() {
+            return book;
         }
     }
 }

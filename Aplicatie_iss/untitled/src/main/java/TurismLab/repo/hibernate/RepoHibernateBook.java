@@ -100,4 +100,21 @@ public class RepoHibernateBook {
             return new ArrayList<>();
         }
     }
+
+    public void delete(Long id) {
+        Transaction transaction = null;
+        try (Session session = hibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Book book = session.get(Book.class, id);
+            if (book != null) {
+                session.delete(book);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
 }

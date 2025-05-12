@@ -11,6 +11,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -20,18 +22,19 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class AdminController implements Initializable {
+    private static final Logger log = LogManager.getLogger(AdminController.class);
     private Service service;
 
     @FXML
-    private TableView<Book> booksTableView;
+    private TableView<BookDTO> booksTableView;
     @FXML
-    private TableColumn<Book, String> titleColumn;
+    private TableColumn<BookDTO, String> titleColumn;
     @FXML
-    private TableColumn<Book, String> authorColumn;
+    private TableColumn<BookDTO, String> authorColumn;
     @FXML
-    private TableColumn<Book, String> genreColumn;
+    private TableColumn<BookDTO, String> genreColumn;
     @FXML
-    private TableColumn<Book, Integer> quantityColumn;
+    private TableColumn<BookDTO, Integer> quantityColumn;
 
     @FXML
     private TextField titluTextField;
@@ -56,7 +59,7 @@ public class AdminController implements Initializable {
     @FXML
     private TableColumn<BorrowDTO, String> returnDateColumn;
 
-    private ObservableList<Book> booksModel = FXCollections.observableArrayList();
+    private ObservableList<BookDTO> booksModel = FXCollections.observableArrayList();
     private ObservableList<BorrowDTO> borrowsModel = FXCollections.observableArrayList();
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -69,7 +72,7 @@ public class AdminController implements Initializable {
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("nume"));
         authorColumn.setCellValueFactory(new PropertyValueFactory<>("autor"));
         genreColumn.setCellValueFactory(new PropertyValueFactory<>("gen"));
-        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("cantitate"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("availableQuantity"));
         booksTableView.setItems(booksModel);
 
         // Initialize borrows table columns
@@ -79,9 +82,15 @@ public class AdminController implements Initializable {
         returnDateColumn.setCellValueFactory(new PropertyValueFactory<>("returnDate"));
         borrowsTableView.setItems(borrowsModel);
 
+        booksTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                populateBookFields(newValue);
+            }
+        });
+
         // Initialize genre combobox
         List<String> genres = Arrays.asList("Fiction", "Science Fiction", "Fantasy", "Mystery", "Romance",
-                "Thriller", "Horror", "Biography", "History", "Science",
+                "Thriller", "Horror", "Biography", "History", "Science", "Classics", "Adventure",
                 "Technology", "Philosophy", "Psychology", "Self-help");
         genComboBox.setItems(FXCollections.observableArrayList(genres));
 
@@ -94,10 +103,20 @@ public class AdminController implements Initializable {
 
     }
 
+    private void populateBookFields(BookDTO book) {
+        titluTextField.setText(book.getNume());
+        autorTextField.setText(book.getAutor());
+        genComboBox.setValue(book.getGen());
+        cantitateField.setText(String.valueOf(book.getAvailableQuantity()));
+    }
+
     private void loadAllBooks() {
         booksModel.clear();
         List<Book> books = service.getAllBooks();
-        booksModel.addAll(books);
+        for (Book book : books) {
+            int available = service.getAvailableQuantity(book);
+            booksModel.add(new BookDTO(book, available));
+        }
     }
 
     @FXML
@@ -114,7 +133,7 @@ public class AdminController implements Initializable {
             }
 
             Book book = service.addBook(title, author, genre, quantity);
-            booksModel.add(book);
+            booksModel.add(new BookDTO(book, quantity));
             clearBookFields();
             showAlert("Success", "Book added successfully", Alert.AlertType.INFORMATION);
         } catch (NumberFormatException e) {
@@ -126,15 +145,42 @@ public class AdminController implements Initializable {
 
     @FXML
     public void handleDeleteBook() {
-        Book selectedBook = booksTableView.getSelectionModel().getSelectedItem();
+        BookDTO selectedBook = booksTableView.getSelectionModel().getSelectedItem();
         if (selectedBook == null) {
             showAlert("Error", "No book selected", Alert.AlertType.ERROR);
             return;
         }
+        autorTextField.setText(selectedBook.getAutor());
+        titluTextField.setText(selectedBook.getNume());
+        genComboBox.setValue(selectedBook.getGen());
+        cantitateField.setText(String.valueOf(selectedBook.getAvailableQuantity()));
 
-        // Here you would add logic to delete a book
-        // Currently there's no delete method in the service, so you'd need to implement it
 
+        try{
+            if(selectedBook.getAvailableQuantity() != selectedBook.getBook().getCantitate()) {
+                System.out.println("Some copies are borrow, but existing books are deleted");
+                showAlert("Error", "Some copies are borrow, but existing books are deleted", Alert.AlertType.INFORMATION);
+                int cantitateBorrow = selectedBook.getBook().getCantitate() - selectedBook.getAvailableQuantity();
+                selectedBook.getBook().setCantitate(cantitateBorrow);
+                service.updateBook(selectedBook.getBook());
+                showAlert("Success", "Book updated successfully.", Alert.AlertType.INFORMATION);
+                autorTextField.clear();
+                titluTextField.clear();
+                genComboBox.getSelectionModel().clearSelection();
+                cantitateField.clear();
+                booksModel.remove(selectedBook);
+                return;
+            }
+            service.deleteBook(selectedBook.getBook().getId());
+            autorTextField.clear();
+            titluTextField.clear();
+            genComboBox.getSelectionModel().clearSelection();
+            cantitateField.clear();
+            booksModel.remove(selectedBook);
+            showAlert("Success", "Book deleted successfully", Alert.AlertType.INFORMATION);
+        } catch (Exception e) {
+            showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
+        }
         // For now, we'll just reload the books
         loadAllBooks();
     }
@@ -239,8 +285,44 @@ public class AdminController implements Initializable {
             // Actualizează tabelul cu împrumuturi
             List<Borrow> borrows = service.getAllBorrowsForUser(userId);
             displayBorrows(borrows);
+            // Actualizează tabela de cărți
+            loadAllBooks();
 
             showAlert("Success", "Book returned successfully", Alert.AlertType.INFORMATION);
+        } catch (Exception e) {
+            showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    public void handleUpdate(ActionEvent actionEvent) {
+        try {
+            String title = titluTextField.getText();
+            String author = autorTextField.getText();
+            String genre = genComboBox.getValue();
+            int quantity = Integer.parseInt(cantitateField.getText());
+
+            if (title.isEmpty() || author.isEmpty() || genre == null || cantitateField.getText().isEmpty()) {
+                showAlert("Error", "All fields must be filled", Alert.AlertType.ERROR);
+                return;
+            }
+
+            BookDTO selectedBook = booksTableView.getSelectionModel().getSelectedItem();
+            if (selectedBook == null) {
+                showAlert("Error", "No book selected", Alert.AlertType.ERROR);
+                return;
+            }
+
+            selectedBook.getBook().setNume(title);
+            selectedBook.getBook().setAutor(author);
+            selectedBook.getBook().setGen(genre);
+            selectedBook.getBook().setCantitate(quantity+ selectedBook.getBook().getCantitate() - selectedBook.availableQuantity);
+
+            service.updateBook(selectedBook.getBook());
+            loadAllBooks();
+            clearBookFields();
+            showAlert("Success", "Book updated successfully", Alert.AlertType.INFORMATION);
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Quantity must be a number", Alert.AlertType.ERROR);
         } catch (Exception e) {
             showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -275,5 +357,38 @@ public class AdminController implements Initializable {
         public String getReturnDate() {
             return returnDate;
         }
+
+
     }
+
+    public class BookDTO {
+        private Book book;
+        private int availableQuantity;
+
+        public BookDTO(Book book, int availableQuantity) {
+            this.book = book;
+            this.availableQuantity = availableQuantity;
+        }
+
+        public String getNume() {
+            return book.getNume();
+        }
+
+        public String getAutor() {
+            return book.getAutor();
+        }
+
+        public String getGen() {
+            return book.getGen();
+        }
+
+        public int getAvailableQuantity() {
+            return availableQuantity;
+        }
+
+        public Book getBook() {
+            return book;
+        }
+    }
+
 }

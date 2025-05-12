@@ -11,7 +11,7 @@
 
 <AnchorPane prefHeight="520.0" prefWidth="835.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TurismLab.controller.AdminController">
     <children>
-        <TableView layoutX="32.0" fx:id="booksTableView" layoutY="29.0" prefHeight="200.0" prefWidth="348.0">
+        <TableView fx:id="booksTableView" layoutX="32.0" layoutY="29.0" prefHeight="200.0" prefWidth="348.0">
             <columns>
                 <TableColumn fx:id="titleColumn" prefWidth="104.79999542236328" text="Titlu" />
                 <TableColumn fx:id="authorColumn" prefWidth="88.0" text="Autor" />
@@ -43,8 +43,8 @@
         <TextField fx:id="autorTextField" layoutX="528.0" layoutY="94.0" />
         <ComboBox fx:id="genComboBox" layoutX="528.0" layoutY="143.0" prefWidth="150.0" />
         <TextField fx:id="cantitateField" layoutX="529.0" layoutY="187.0" />
-        <Button layoutX="705.0" layoutY="72.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="106.0" text="Adauga" />
-        <Button layoutX="705.0" layoutY="134.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="106.0" text="Sterge" />
+        <Button layoutX="705.0" layoutY="57.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="106.0" text="Adauga" onAction="#handleAddBook"/>
+        <Button layoutX="705.0" layoutY="108.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="106.0" text="Sterge" onAction="#handleDeleteBook" />
         <TextField fx:id="idUnicUserTextField" layoutX="140.0" layoutY="328.0" />
         <Label layoutX="40.0" layoutY="328.0" text="Id unic user:">
             <font>
@@ -52,7 +52,7 @@
             </font>
         </Label>
         <Button fx:id="cautaButton" layoutX="83.0" layoutY="380.0" mnemonicParsing="false" onAction="#handleCautaCarti" prefHeight="34.0" prefWidth="166.0" text="Cauta" />
-        <TableView layoutX="332.0" fx:id="borrowsTableView" layoutY="241.0" prefHeight="200.0" prefWidth="443.0">
+        <TableView fx:id="borrowsTableView" layoutX="332.0" layoutY="241.0" prefHeight="200.0" prefWidth="443.0">
             <columns>
                 <TableColumn fx:id="borrowTitleColumn" prefWidth="107.20001220703125" text="Titlu" />
                 <TableColumn fx:id="borrowAuthorColumn" prefWidth="73.59994506835938" text="Autor" />
@@ -61,5 +61,6 @@
             </columns>
         </TableView>
         <Button fx:id="restituieButton" layoutX="446.0" layoutY="449.0" mnemonicParsing="false" onAction="#handleRestituie" prefHeight="34.0" prefWidth="194.0" text="Restituie" />
+      <Button fx:id="updateButton" layoutX="705.0" layoutY="166.0" mnemonicParsing="false" onAction="#handleUpdate" prefHeight="42.0" prefWidth="106.0" text="Update" />
     </children>
 </AnchorPane>

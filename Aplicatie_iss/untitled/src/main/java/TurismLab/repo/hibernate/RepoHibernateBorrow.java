@@ -81,4 +81,15 @@ public class RepoHibernateBorrow {
             return null;
         }
     }
+
+    public List<Borrow> findActiveBorrowsForBook(Long bookId) {
+        try (Session session = hibernateUtil.getSessionFactory().openSession()) {
+            Query<Borrow> query = session.createQuery("FROM Borrow WHERE book.id = :bookId", Borrow.class);
+            query.setParameter("bookId", bookId);
+            return query.list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
 }

@@ -20,6 +20,7 @@ public class Book extends TurismLab.domain.BaseEntity<Long> {
     @Column(name = "cantitate")
     private int cantitate;
 
+
     public Book() {
         // Required by Hibernate
     }
@@ -62,4 +63,5 @@ public class Book extends TurismLab.domain.BaseEntity<Long> {
     public void setGen(String gen) {
         this.gen = gen;
     }
+
 }
